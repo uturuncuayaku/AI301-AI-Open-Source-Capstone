@@ -3,15 +3,15 @@
 **Contribution Number:** 1
 **Student:** Andres
 **Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/686
-**Status:** Phase I \[In Progress]
+**Status:** Phase I [In Progress]
 
-\---
+
 
 ## Why I Chose This Issue
 
 I'm choosing this issue because the maintainers and supporters have given hints to how they would like this solved, and I believe in giving back to communities that promote fun and engaging activities to do on PC's because that was my first exposure to computers.
 
-\---
+
 
 ## Understanding the Issue
 
@@ -31,36 +31,17 @@ Printer output is not currently supported in DOSBox Staging. Applications that a
 
 ### Affected Components
 
-\- LPT (printer port) emulation subsystem
-
-\- DOS hardware device emulation layer
-
-\- Configuration system for printer-related settings
-
-\- File output and host integration components
-
-\---
+- LPT (printer port) emulation subsystem
+- DOS hardware device emulation layer
+- Configuration system for printer-related settings
+- File output and host integration components
 
 ## Reproduction Process
 
 ### Environment Setup
 
 I don't like using Visual Studio so understanding and finding the command line tools was difficult but ultimately got the tooling necessary to complete the environment for my liking. My code editor of choice is VIM for simplicity, and plug-in capabilities as well as VS Code for it's integration with my machine running Windows 11 Pro.
-
-### Steps to Reproduce
-
-1. \[Step 1]
-2. \[Step 2]
-3. \[Observed result]
-
-### Reproduction Evidence
-
-* **Commit showing reproduction:** \[Link to commit in your fork]
-* **Screenshots/logs:** \[If applicable]
-* **My findings:** \[What you discovered during reproduction]
-
-\---
-
+---
 ## Solution Approach
 
 ### Analysis
