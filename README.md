@@ -29,15 +29,15 @@ The installer fails due to DOSBox not needing the commands for any other game.
 - Compatibility layer for legacy DOS installers
 
 ## Reproduction Process
-
 ### Environment Setup  
-Visual Studio 2022 BuildTools
-Powershell
-Windows 11 Pro
-Ninja
-CMake
-VCPKG
-CL.EXE
+- Visual Studio 2022 BuildTools
+- Powershell
+- Windows 11 Pro
+- Ninja
+- CMake
+- VCPKG
+- CL.EXE
+  
 ---
 ## Solution Approach
 
