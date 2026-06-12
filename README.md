@@ -44,7 +44,6 @@ The installer fails due to DOSBox not needing the commands for any other game.
 - Then this command will start the game, `WC.EXE CD="D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT;" DD="C:\ORIGIN\WINGCMDR"`
 - Integrating APPEND is the first step because I have deduced that SUBST is available through the DOSBox command engine and mapped to the "mount" command enabling proper functionality to play most games. This game in particular requires the path to the game data be local to the disk where the game is played. So, "append" enables us to create this relative link so the game on the disk accesses data from the hard disk using relative paths(/this/is/a/relativepath instead of canonical paths(full pathname, C:\ORIGIN\GAMEDATA\).
 
-# Proposed MVP Implementation for APPEND Support
 
 After bypassing the initial utility check, the installer attempted to launch `WC.EXE` and reported:
 
@@ -61,7 +60,7 @@ This suggests that the issue may extend beyond simple command recognition and in
 
 ---
 
-# MVP Scope
+# Proposed minimaly viable product(MVP) implementation for APPEND command
 
 The goal of the MVP is to provide meaningful compatibility improvements while minimizing implementation complexity and risk.
 
