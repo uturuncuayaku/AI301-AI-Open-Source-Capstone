@@ -1,46 +1,43 @@
-# Contribution 1: Printer Emulation
+# Contribution 1: Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)
 
 **Contribution Number:** 1
 **Student:** Andres
-**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/686
+**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866#issuecomment-4685769935
 **Status:** Phase I [In Progress]
-
-
 
 ## Why I Chose This Issue
 
-I'm choosing this issue because the maintainers and supporters have given hints to how they would like this solved, and I believe in giving back to communities that promote fun and engaging activities to do on PC's because that was my first exposure to computers.
-
-
+I'm choosing this issue because the maintainers and supporters have given hints to how they would like this solved, and I believe in giving back to communities that promote fun and engaging activities to do on PC's because that was my first exposure to computers. I particularly would like to understand how the emulator works so well with the current command set and help new games work within this repository.
 
 ## Understanding the Issue
 
 ### Problem Description
-
-DOSBox Staging currently emulates many DOS hardware devices but lacks an implementation of a printer backend attached to the emulated LPT (Line Printer Terminal) ports. As a result, DOS applications that expect printer output cannot print, save printer data, or interact with host printing systems. This prevents compatibility with a variety of DOS games and applications that rely on printer functionality.
-
-
+The Origin Wing Commander Deluxe CD-ROM installer expects standard MS-DOS utilities such as APPEND.EXE, SUBST.EXE, and JOIN.EXE to be available during installation. DOSBox Staging currently provides some DOS utilities but does not implement these commands. As a result, the installer cannot complete successfully, reducing compatibility with legacy DOS software.
 
 ### Expected Behavior
-
-When a DOS application sends output to an LPT printer port, DOSBox Staging should capture that output and provide a mechanism for the user to access it. At a minimum, printer data should be written to a host file so that it can be processed by external tools or sent to a physical printer. Future enhancements could include printer emulation, PDF generation, or support for printer command languages such as Epson ESC/P, HP PCL, or PostScript.
+The installer finds the commands and installs the game.
 
 ### Current Behavior
-
-Printer output is not currently supported in DOSBox Staging. Applications that attempt to print either fail to produce output or encounter missing functionality because no printer backend is attached to the emulated LPT ports.
+The installer fails due to DOSBox not needing the commands for any other game.
 
 ### Affected Components
 
-- LPT (printer port) emulation subsystem
-- DOS hardware device emulation layer
-- Configuration system for printer-related settings
-- File output and host integration components
+- DOS command interpreter (internal commands and executable utilities)
+- DOS filesystem emulation layer
+- Drive and path management subsystem
+- DOS utility command implementations (similar to existing XCOPY support)
+- Compatibility layer for legacy DOS installers
 
 ## Reproduction Process
 
 ### Environment Setup
-
-I don't like using Visual Studio so understanding and finding the command line tools was difficult but ultimately got the tooling necessary to complete the environment for my liking. My code editor of choice is VIM for simplicity, and plug-in capabilities as well as VS Code for it's integration with my machine running Windows 11 Pro.
+Visual Studio 2022 BuildTools
+Powershell
+Windows 11 Pro
+Ninja
+CMake
+VCPKG
+CL.EXE
 ---
 ## Solution Approach
 
