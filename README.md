@@ -1,7 +1,6 @@
 # Contribution 1, Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)
 
-![installer]([https://private-user-images.githubusercontent.com/224465904/587993310-709a1c81-4673-4e49-913e-8211a302f6e1.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODEyMzE3NzcsIm5iZiI6MTc4MTIzMTQ3NywicGF0aCI6Ii8yMjQ0NjU5MDQvNTg3OTkzMzEwLTcwOWExYzgxLTQ2NzMtNGU0OS05MTNlLTgyMTFhMzAyZjZlMS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNjEyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDYxMlQwMjMxMTdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0zYmY1ZDQ3ZDhmNzFkNjZiYjg1N2E2ZmU2YWRjMzUxYmJlMWFlOTRkNTc2YTg3MzBkYjk3ZGU1ZDAyZWEyNDQ3JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.6B3x9V8k02batr6a1KqKs0Sy5RAGjzVDnzBXNrnokxI](https://github.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/blob/main/WINCMDR_INSTALL_ERROR.png?raw=true))
-
+![installer_screen](https://raw.githubusercontent.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/refs/heads/main/WINCMDR_INSTALL_ERROR.png)
 **Contribution Number:** 1
 **Student:** Andres
 **Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866#issuecomment-4685769935
