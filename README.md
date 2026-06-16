@@ -1,16 +1,33 @@
-# Contribution 1, Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)
+# DOSBox-Staging Issue
+## Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)  
 
-![installer_screen](https://raw.githubusercontent.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/refs/heads/main/WINCMDR_INSTALL_ERROR.png)
-**Contribution Number:** 1
-**Student:** Andres
-**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866#issuecomment-4685769935
-**Status:** Phase I [In Progress]
+![installer_screen](https://raw.githubusercontent.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/refs/heads/main/WINCMDR_INSTALL_ERROR.png)  
+
+**Student:** Andres  
+**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866#issuecomment-4685769935  
+**Status:** Phase II [In Progress]  
 
 ## Why I Chose This Issue
 
 I'm choosing this issue because the maintainers and supporters have given hints to how they would like this solved, and I believe in giving back to communities that promote fun and engaging activities to do on PC's because that was my first exposure to computers. I particularly would like to understand how the emulator works so well with the current command set and help new games work within this repository.
 
 ## Understanding the Issue
+A DOS game expects an entire DOS environment. Although modern x86-64 processors remain compatible with much of the original Intel 8086 instruction set. The 8086 instruction set remained a selling point for the modern CPU to take off but now is left for backward-compatibility. The difficult bit is to emulate the machine around the CPU. The emulator takes CPU instruction and converts it to C++ code, while implementing the memory access of a 1970s-1990s era PC. This emulator is an important aspect of the game playing system because games running strictly off the host PC would run with too-permissive options and might disable interrupts, program hardware ports, manipulate memory directly, or install interrupt handlers and become unstable or become a security issue for the rest of the system's users. So, emulating this environment with C++ is very important.
+
+Now that we are up to speed with the current landscape of the MS-DOS emulator solutions, we can look at the source code to patch in our three commands needed for the particular game mentioned above. With this background, we can examine how DOSBox-Staging currently implements DOS commands and investigate how support for APPEND.EXE, and JOIN.EXE could be added to improve compatibility with installers and applications that depend on these utilities. I have found that SUBST command has already been implemented within the emulator but we will continue with the rest of the issue's request as that is part of the installation requirements dictacted by the game's installer.
+
+#### DOS Game
+
+- INT 21h (DOS API)
+- INT 10h (Video BIOS)
+- INT 13h (Disk BIOS)
+- INT 16h (Keyboard BIOS)
+- EMS/XMS memory
+- Sound Blaster
+- AdLib
+- VGA hardware
+- PIC interrupts
+- PIT timers  
 
 ### Problem Description
 The Origin Wing Commander Deluxe CD-ROM installer expects standard MS-DOS utilities such as APPEND.EXE, SUBST.EXE, and JOIN.EXE to be available during installation. DOSBox Staging currently provides some DOS utilities but does not implement these commands. As a result, the installer cannot complete successfully, reducing compatibility with legacy DOS software.
