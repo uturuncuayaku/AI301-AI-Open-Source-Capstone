@@ -1,6 +1,6 @@
-# DOSBox-Staging Issue
-## Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)  
-
+# Phase I
+### DOSBox-staging, Can more DOS commands be added? (APPEND.EXE, SUBST.EXE, and JOIN.EXE)  
+--- 
 ![installer_screen](https://raw.githubusercontent.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/refs/heads/main/WINCMDR_INSTALL_ERROR.png)  
 
 **Student:** Andres  
