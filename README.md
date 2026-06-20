@@ -60,14 +60,36 @@ The installer fails due to DOSBox not needing the commands for any other game.
 4. **Trigger the executable:** Allow the installer to proceed until it attempts to execute the game using the generated command: `WC.EXE CD="D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT;" DD="C:\ORIGIN\WINGCMDR"`
 5. **Observe the failure state:** Note the resulting crash and error message: `Redirected Exec failed -- "WC.EXE"`. The failure occurs because the game requires the relative file lookup behavior and semicolon-separated search paths that the actual `APPEND` command provides, which dummy executables cannot replicate.
 
-## Reproduction Evidence
+### Solution Approach
 
-* [Feature Branch Link](https://www.google.com/search?q=https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
+**Understand**
+Legacy games like Wing Commander require the `APPEND` command to locate data files across multiple directories using relative paths. Currently, the game crashes during execution because it attempts to use a CD-ROM search path (`D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT`) that relies on `APPEND` for proper file lookup. The goal is to build an MVP that stores these semicolon-separated paths and routes file requests through them when a file isn't found in the current working directory, avoiding a full 1:1 MS-DOS feature replication in favor of targeted game compatibility.
+
+**Match**
+This behavior is highly similar to the internal `PATH` environment variable parsing and the `mount` command (which already maps `SUBST` functionality). I will look at how the DOSBox command engine parses `PATH` variables and how it handles virtual filesystem lookups in `src/dos/` or the internal shell command handlers to mirror that logic for `APPEND`.
+
+**Plan**
+1. **Define State:** Create an internal structure (`struct AppendState { bool enabled = false; std::vector<std::string> paths; };`) to hold the global state of the command.
+2. **Command Registration:** Register `APPEND` as an internal shell command.
+3. **Parse Arguments:** Implement logic to parse semicolon-separated directories from the user's input.
+4. **Read/Write Behavior:** * If executed with paths (e.g., `APPEND C:\GAMES\WC;D:\ORIGIN\WC\GAMEDAT`), populate the `AppendState` vector.
+    * If executed with `;`, clear the vector.
+    * If executed without arguments, print the currently stored paths to the console.
+5. **Filesystem Hook:** Modify the file lookup routine (where `fopen` or internal DOS file opening occurs) to check the directories stored in `AppendState` if the initial file lookup in the current directory fails.
+
 
 ## Implementation Plan
-
+* [Feature Branch Link](https://www.google.com/search?q=https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
 * **Core Objective:** Develop a Minimum Viable Product (MVP) for the `APPEND` command that focuses purely on resolving the core file lookup functionality required by legacy games, rather than full MS-DOS feature parity.
 * **State Management:** Define a C++ structure (`struct AppendState { bool enabled = false; std::vector<std::string> paths; };`) to maintain the global state of the command.
 * **Command Parsing:** Update the command engine to intercept `APPEND` calls and parse any semicolon-separated directories provided in the arguments.
 * **Read Behavior:** Configure the engine to output the currently stored paths (or an "APPEND is not configured" message) if the command is executed without arguments.
 * **Write Behavior:** Configure the engine to update the `AppendState` vector when paths are provided (e.g., `APPEND C:\GAMES\WC;D:\ORIGIN\WC\GAMEDAT`) or clear the state if `APPEND ;` is executed, enabling the relative path linking necessary for game data access.
+
+
+**Review**
+I will self-review my code against the DOSBox-Staging `CONTRIBUTING.md` file, ensuring I adhere to modern C++ conventions, memory safety guidelines, and the project's specific commit message formatting rules before opening a Draft PR.
+
+**Evaluate**
+* **Unit Tests:** I will write automated tests to verify the string parsing of semicolon-separated paths and the clearing of state using `APPEND ;`.
+* **End-to-End Verification:** I will manually run the Wing Commander installation sequence to confirm the `WC.EXE CD="..."` execution successfully locates the game data and proceeds without the `Redirected Exec failed` error.
