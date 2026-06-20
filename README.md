@@ -40,252 +40,34 @@ The installer fails due to DOSBox not needing the commands for any other game.
 
 ### Affected Components
 
-- DOS command interpreter (internal commands and executable utilities)
-- DOS filesystem emulation layer
+- DOSBox command interpreter (internal commands and executable utilities)
+- DOS-similar filesystem emulation layer
 - Drive and path management subsystem
-- DOS utility command implementations (similar to existing XCOPY support)
+- DOS utility command implementations (similar to existing XCOPY|SUBST support)
 - Compatibility layer for legacy DOS installers
 
-## Reproduction Process
-### Environment Setup  
-- Visual Studio 2022 BuildTools
-- Powershell
-- Windows 11 Pro
-- Ninja
-- Python3 (optional)
-  
 ---
-## Debugging the game
-- Creating placeholder APPEND.EXE/JOIN.EXE/SUBST.EXE allows installation to proceed further, but execution later fails when the game attempts to use CD-ROM search paths (D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT) that APPEND would normally provide.
+# Phase II  
+--- 
 
-- Then this command will start the game, `WC.EXE CD="D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT;" DD="C:\ORIGIN\WINGCMDR"`
-- Integrating APPEND is the first step because I have deduced that SUBST is available through the DOSBox command engine and mapped to the "mount" command enabling proper functionality to play most games. This game in particular requires the path to the game data be local to the disk where the game is played. So, "append" enables us to create this relative link so the game on the disk accesses data from the hard disk using relative paths(/this/is/a/relativepath instead of canonical paths(full pathname, C:\ORIGIN\GAMEDATA\).
+## Steps to Reproduce
 
+### Reproduction Process
 
-After bypassing the initial utility check, the installer attempted to launch `WC.EXE` and reported:
+1. **Set up the build environment:** Compile DOSBox-Staging on Windows 11 Pro using Visual Studio 2022 BuildTools, PowerShell, and Ninja (Python3 is optional).
+2. **Launch the game installer:** Mount the necessary local drives and attempt to run the Wing Commander installation sequence.
+3. **Bypass the initial utility check:** Create empty placeholder files named `APPEND.EXE`, `JOIN.EXE`, and `SUBST.EXE` in the DOS environment to allow the installer to proceed past its dependency check.
+4. **Trigger the executable:** Allow the installer to proceed until it attempts to execute the game using the generated command: `WC.EXE CD="D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT;" DD="C:\ORIGIN\WINGCMDR"`
+5. **Observe the failure state:** Note the resulting crash and error message: `Redirected Exec failed -- "WC.EXE"`. The failure occurs because the game requires the relative file lookup behavior and semicolon-separated search paths that the actual `APPEND` command provides, which dummy executables cannot replicate.
 
-```text
-Redirected Exec failed --
-"WC.EXE"
-CD="D:\ORIGIN\WC;D:\ORIGIN\WC\GAMEDAT;"
-DD="C:\ORIGIN\WINGCMDR"
-```
+## Reproduction Evidence
 
-The presence of multiple semicolon-separated search paths is notable because APPEND was historically used to allow DOS applications to locate data files across multiple directories without requiring explicit path references.
+* [Feature Branch Link](https://www.google.com/search?q=https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
 
-This suggests that the issue may extend beyond simple command recognition and into file lookup behavior.
+## Implementation Plan
 
----
-
-# Proposed minimaly viable product(MVP) implementation for APPEND command
-
-The goal of the MVP is to provide meaningful compatibility improvements while minimizing implementation complexity and risk.
-
-The objective is **not** to fully replicate every APPEND feature available in MS-DOS, but rather to implement the core functionality most likely required by games and installers.
-
-## Supported Commands
-
-```dos
-APPEND
-APPEND [path[;path...]]
-APPEND ;
-```
-
-Examples:
-
-```dos
-APPEND C:\GAMES\WC
-```
-
-```dos
-APPEND C:\GAMES\WC;D:\ORIGIN\WC\GAMEDAT
-```
-
-```dos
-APPEND ;
-```
-
-```dos
-APPEND
-```
-
----
-
-# Proposed Behavior
-
-## 1. Display Current APPEND State
-
-When executed without arguments:
-
-```dos
-APPEND
-```
-
-DOSBox Staging should display the currently configured APPEND paths.
-
-Example:
-
-```text
-APPEND paths:
-C:\GAMES\WC
-D:\ORIGIN\WC\GAMEDAT
-```
-
-If no paths are configured:
-
-```text
-APPEND is not configured.
-```
-
----
-
-## 2. Store APPEND Search Paths
-
-When executed with one or more paths:
-
-```dos
-APPEND C:\GAMES\WC;D:\ORIGIN\WC\GAMEDAT
-```
-
-DOSBox Staging should:
-
-* Enable APPEND support.
-* Parse semicolon-separated directories.
-* Store those directories in a global APPEND state.
-
-Example internal representation:
-
-```cpp
-struct AppendState {
-    bool enabled = false;
-    std::vector<std::string> paths;
-};
-```
-
----
-
-## 3. Clear APPEND Configuration
-
-When executed as:
-
-```dos
-APPEND ;
-```
-
-DOSBox Staging should:
-
-* Clear all stored APPEND paths.
-* Disable APPEND search behavior.
-
----
-
-## 4. APPEND File Lookup Behavior
-
-The primary purpose of APPEND was to extend file lookup behavior.
-
-If a DOS application requests:
-
-```text
-PILOT.DAT
-```
-
-and the file cannot be found through normal lookup rules, DOSBox Staging should attempt to search configured APPEND directories before reporting failure.
-
-Conceptually:
-
-```text
-Normal file lookup
-        |
-        v
-File not found
-        |
-        v
-Search APPEND paths
-        |
-        +--> Found -> Open file
-        |
-        +--> Not Found -> Return original error
-```
-
-This behavior would likely satisfy the majority of DOS applications that historically relied on APPEND.
-
----
-
-# Architectural Considerations
-
-Based on investigation of the DOSBox Staging codebase, the most promising implementation location appears to be the file resolution layer used during file open operations.
-
-Relevant areas explored:
-
-* `shell_cmds.cpp`
-* `CMD_SUBST`
-* `DOS_OpenFile()`
-* `DOS_MakeName()`
-* `localDrive::FileOpen()`
-
-The current understanding is:
-
-* The shell command should only configure APPEND state.
-* The actual file search behavior should occur during file resolution.
-* Existing file lookup behavior should always take precedence.
-* APPEND should only be consulted when normal lookup fails.
-
-This minimizes behavioral changes while preserving compatibility.
-
----
-
-# Deferred Features
-
-The following APPEND options are intentionally excluded from the MVP:
-
-```dos
-APPEND /X
-APPEND /E
-APPEND /PATH:ON
-APPEND /PATH:OFF
-```
-
-These options should be considered future enhancements.
-
-At present there is no evidence that Wing Commander Deluxe requires them.
-
-Implementation effort should be focused on functionality that directly improves game compatibility.
-
----
-
-# Validation Plan
-
-The proposed implementation should be validated against real software rather than synthetic tests alone.
-
-## Primary Validation Target
-
-Wing Commander Deluxe CD-ROM
-
-Success criteria:
-
-* Installer no longer fails due to missing APPEND functionality.
-* Installer completes successfully.
-* Installed game can locate required data files.
-* Runtime behavior matches expectations on a real DOS system.
-
-## Additional Validation
-
-* Verify APPEND path storage.
-* Verify APPEND path clearing.
-* Verify fallback file lookup behavior.
-* Verify existing file lookup behavior remains unchanged when APPEND is disabled.
-
----
-
-# Expected Benefits
-
-This MVP would:
-
-* Improve compatibility with legacy DOS installers.
-* Improve compatibility with CD-ROM based games.
-* Provide a foundation for future APPEND enhancements.
-* Avoid premature implementation of rarely used MS-DOS features.
-* Follow DOSBox Staging's existing compatibility-focused design philosophy.
-
-Most importantly, it targets behavior that appears to be exercised by real software rather than implementing unsupported features speculatively.
-
+* **Core Objective:** Develop a Minimum Viable Product (MVP) for the `APPEND` command that focuses purely on resolving the core file lookup functionality required by legacy games, rather than full MS-DOS feature parity.
+* **State Management:** Define a C++ structure (`struct AppendState { bool enabled = false; std::vector<std::string> paths; };`) to maintain the global state of the command.
+* **Command Parsing:** Update the command engine to intercept `APPEND` calls and parse any semicolon-separated directories provided in the arguments.
+* **Read Behavior:** Configure the engine to output the currently stored paths (or an "APPEND is not configured" message) if the command is executed without arguments.
+* **Write Behavior:** Configure the engine to update the `AppendState` vector when paths are provided (e.g., `APPEND C:\GAMES\WC;D:\ORIGIN\WC\GAMEDAT`) or clear the state if `APPEND ;` is executed, enabling the relative path linking necessary for game data access.
