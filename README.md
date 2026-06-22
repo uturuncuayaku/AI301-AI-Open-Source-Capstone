@@ -90,6 +90,68 @@ This behavior is highly similar to the internal `PATH` environment variable pars
 **Review**
 I will self-review my code against the DOSBox-Staging `CONTRIBUTING.md` file, ensuring I adhere to modern C++ conventions, memory safety guidelines, and the project's specific commit message formatting rules before opening a Draft PR.
 
-**Evaluate**
 * **Unit Tests:** I will write automated tests to verify the string parsing of semicolon-separated paths and the clearing of state using `APPEND ;`.
 * **End-to-End Verification:** I will manually run the Wing Commander installation sequence to confirm the `WC.EXE CD="..."` execution successfully locates the game data and proceeds without the `Redirected Exec failed` error.
+
+---
+# Phase III - Testing & Verification
+
+## Implementation Progress
+
+### Code and Test Enhancements
+* **`src/dos/dos_append.cpp`** ([Link to file](file:///c:/Users/andtr/Documents/GitHub/dosbox-staging/src/dos/dos_append.cpp))
+  * Fixed a potential logic flaw where paths that evaluated to empty strings after backslash stripping (e.g. a single backslash `"\"`) were still pushed to the active paths vector, turning the append state active. Added a strict `!trimmed_path.empty()` check prior to registration.
+* **`tests/dos_files_tests.cpp`** ([Link to file](file:///c:/Users/andtr/Documents/GitHub/dosbox-staging/tests/dos_files_tests.cpp))
+  * Created the new `DOS_Append` unit test suite to verify nominal path parsing, defensive input sanitization, and security path traversal validation.
+
+### Key Commit
+* **Commit Hash**: `6be83f4791c8e06c9b7b06e96f7b950dba7b754b`
+* **Message**: `Fixing file path implementation` (Committed both the parser check and the test suite).
+
+---
+
+## Challenges Faced
+
+1. **Drive Isolation in Standalone Test Fixtures**: 
+   Initially, using standard drive `C:` inside the traversal tests caused immediate failures because `C:` is not mounted in the GoogleTest console environment (only drive `Z:` is).
+   * **Solution**: Dynamically instantiated a temporary `localDrive` pointing to the test assets folder and registered it inside the global `Drives` array at index `2` (`Drives.at(2) = local_drive`). This simulated a real cross-drive mount environment end-to-end, enabling complete test validation across arbitrary drives.
+2. **Buffer Limits and Undefined Behavior Prevention**: 
+   Safeguarding against undefined behavior when executing C-style operations (like `.pop_back()` on empty strings) required implementing pre-checks inside `SetPaths`.
+
+---
+
+## Testing Strategy
+
+We added 3 major GoogleTest test cases targeting the `DOS_Append` namespace:
+1. **`DOS_Append_Path_Parsing_Nominal`**: Tests normal semicolon-separated path inputs and trailing slash stripping.
+2. **`DOS_Append_Weird_And_Invalid_Inputs`**: Tests robustness under malformed string inputs, whitespace padding, duplicate delimiters, and single characters.
+3. **`DOS_Append_Security_And_Boundary_Tests`**:
+   * **Path Traversal & Sandbox Escape**: Appends traversal paths (`C:\GAMES\..\..\..\ETC`) and validates that `DOS_MakeName` constrains the lookup to the drive root, preventing sandbox escapes.
+   * **Buffer Sizing Boundaries**: Tests paths of exactly `DOS_PATHLENGTH - 1` (valid) and `DOS_PATHLENGTH` (invalid / fails gracefully) to protect against off-by-one errors.
+   * **Resource Limits / DoS**: Passes 500 consecutive semicolons to verify no crashes or resource exhaustion.
+
+### Validation Results
+All 3 tests compiled and passed successfully:
+```text
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from DOS_FilesTest
+[ RUN      ] DOS_FilesTest.DOS_Append_Path_Parsing_Nominal
+[       OK ] DOS_FilesTest.DOS_Append_Path_Parsing_Nominal (94 ms)
+[ RUN      ] DOS_FilesTest.DOS_Append_Weird_And_Invalid_Inputs
+[       OK ] DOS_FilesTest.DOS_Append_Weird_And_Invalid_Inputs (16 ms)
+[ RUN      ] DOS_FilesTest.DOS_Append_Security_And_Boundary_Tests
+[       OK ] DOS_FilesTest.DOS_Append_Security_And_Boundary_Tests (17 ms)
+[----------] 3 tests from DOS_FilesTest (128 ms total)
+
+[==========] 3 tests from 1 test suite ran. (128 ms total)
+[  PASSED  ] 3 tests.
+```
+
+---
+
+## Branch Link
+* [Feature Branch Link on Fork](https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
+
+**Phase III Complete.**
+
