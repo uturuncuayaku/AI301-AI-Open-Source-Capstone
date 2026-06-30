@@ -154,4 +154,26 @@ All 3 tests compiled and passed successfully:
 * [Feature Branch Link on Fork](https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
 
 **Phase III Complete.**
+--- 
 
+**Phase IV**
+## Pull Request**PR Link:** https://github.com/dosbox-staging/dosbox-staging/pull/4961**PR Description:**
+
+- What does this PR do?: 
+Append feature and Join program stub.
+- Why was this PR needed?:
+Issue #4866 Native DOS commands SUBST, JOIN, and APPEND needed for a game installer to run.
+- What are the relevant issue numbers?:
+Closes #4866
+## Learnings & Reflections
+- Biggest Lesson:
+The transition from a proof-of-concept to a production-ready contribution required shifting my focus from making it work to maintaining system integrity. I learned that in a mature codebase like dosbox-staging, the implementation is only half the task; the other half is ensuring that new features respect the existing architectural boundaries, global state management, and build systems.
+
+- Key Takeaways:
+Systemic Integration: I gained a much deeper understanding of how cross-cutting features—like filesystem redirection—must be carefully centralized to avoid polluting the core kernel with conditional logic.
+
+- The Value of Verification: 
+Implementing GoogleTest unit tests was eye-opening. What I initially thought were "edge cases" (like path traversal and directory string manipulation) were actually critical security boundaries that the unit tests helped me harden effectively.
+
+- Engineering Discipline: 
+I learned to appreciate the discipline of the dosbox-staging contribution guidelines. Moving from a messy, ad-hoc branch to a clean, bisectable series of commits improved my own workflow and helped me realize that the "process" of open-source contribution is just as important as the code itself.
