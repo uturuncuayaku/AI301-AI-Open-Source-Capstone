@@ -95,7 +95,8 @@ I will self-review my code against the DOSBox-Staging `CONTRIBUTING.md` file, en
 
 ---
 # Phase III - Testing & Verification
-
+### Branch Link
+* [Feature Branch Link on Fork](https://github.com/uturuncuayaku/dosbox-staging/tree/pr-feature)  
 ## Implementation Progress
 
 ### Code and Test Enhancements
@@ -147,29 +148,31 @@ All 3 tests compiled and passed successfully:
 [==========] 3 tests from 1 test suite ran. (128 ms total)
 [  PASSED  ] 3 tests.
 ```
-
----
-
-## Branch Link
-* [Feature Branch Link on Fork](https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
-
-**Phase III Complete.**
 --- 
 
-**Phase IV**
-## Pull Request**PR Link:** https://github.com/dosbox-staging/dosbox-staging/pull/4961**PR Description:**
+# Phase IV Pull Request
 
-- What does this PR do?: 
+**PR Link:** https://github.com/dosbox-staging/dosbox-staging/pull/4961
+
+**PR Description:** 
+
+- What does this PR do?
+
 Append feature and Join program stub.
-- Why was this PR needed?:
+
+- Why was this PR needed?
+
 Issue #4866 Native DOS commands SUBST, JOIN, and APPEND needed for a game installer to run.
-- What are the relevant issue numbers?:
+
+- What are the relevant issue numbers?
+
 Closes #4866
-## Learnings & Reflections
-- Biggest Lesson:
+
+## Learnings & Reflections  
+- Biggest Lesson:  
 The transition from a proof-of-concept to a production-ready contribution required shifting my focus from making it work to maintaining system integrity. I learned that in a mature codebase like dosbox-staging, the implementation is only half the task; the other half is ensuring that new features respect the existing architectural boundaries, global state management, and build systems.
 
-- Key Takeaways:
+- Key Takeaways:  
 Systemic Integration: I gained a much deeper understanding of how cross-cutting features—like filesystem redirection—must be carefully centralized to avoid polluting the core kernel with conditional logic.
 
 - The Value of Verification: 
