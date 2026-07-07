@@ -4,8 +4,8 @@
 ![installer_screen](https://raw.githubusercontent.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/refs/heads/main/WINCMDR_INSTALL_ERROR.png)  
 
 **Student:** Andres  
-**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866#issuecomment-4685769935  
-**Status:** Phase II [In Progress]  
+**Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866 
+**Status:** Phase I [In Progress]  
 
 ## Why I Chose This Issue
 
@@ -79,7 +79,7 @@ This behavior is highly similar to the internal `PATH` environment variable pars
 
 
 ## Implementation Plan
-* [Feature Branch Link](https://www.google.com/search?q=https://github.com/uturuncuayaku/dosbox-staging/tree/feature-append)
+* [Feature Branch Link](https://www.google.com/search?q=https://github.com/uturuncuayaku/dosbox-staging/tree/pr-append)
 * **Core Objective:** Develop a Minimum Viable Product (MVP) for the `APPEND` command that focuses purely on resolving the core file lookup functionality required by legacy games, rather than full MS-DOS feature parity.
 * **State Management:** Define a C++ structure (`struct AppendState { bool enabled = false; std::vector<std::string> paths; };`) to maintain the global state of the command.
 * **Command Parsing:** Update the command engine to intercept `APPEND` calls and parse any semicolon-separated directories provided in the arguments.
@@ -183,4 +183,142 @@ I learned to appreciate the discipline of the dosbox-staging contribution guidel
 
 --- 
 
-Update Branch Closed and code not merged due to violating AI contributor rules. The pull request was rushed and not fully functional and then the updates to make it up to standard used to much AI and retroactive progress. So the maintainer with good reason closed the issue. I feel like the feature didn't have a success criteria other than it was supposed to be natively implemented and I started two weeks late because the first issue was taken over by the maintainer. This caused me to only have half the time to create a solution that I understood well but ultimately having it integrated was much more difficult because of the complexity of the underlying DOS system instead of just the one game I managed to satisfy. The maintainer with good reason could not merge this incomplete pull request because it was very inadequate in addressing the project's long term needs. Specifically, I didn't understand the MSDOS architecture and I needed more time to understand where the execution contexts were for me to confidently have a pull request. So, I rushed the pull request and it was very obvious I had only been able to solve some issues #4866 was to get the Wing Commander Deluxe CD-ROM to install the game. But the the maintainer wanted a full featured application for MSDOS Append. The pull request was converted to a draft and I could not solve all the issues in the time frame between the draft pull request was made and to where it became obvious there needed to be more research done to understand the codebase.
+# Update 
+   Branch Closed and code not merged due to violating AI contributor rules. The pull request was rushed and not fully functional and then the updates to make it up to standard used to much AI and retroactive progress. So the maintainer with good reason closed the issue. I feel like the feature didn't have a success criteria other than it was supposed to be natively implemented and I started two weeks late because the first issue was taken over by the maintainer. This caused me to only have half the time to create a solution that I understood well but ultimately having it integrated was much more difficult because of the complexity of the underlying DOS system instead of just the one game I managed to satisfy. The maintainer with good reason could not merge this incomplete pull request because it was very inadequate in addressing the project's long term needs. Specifically, I didn't understand the MSDOS architecture and I needed more time to understand where the execution contexts were for me to confidently have a pull request. So, I rushed the pull request and it was very obvious I had only been able to solve some issues #4866 was to get the Wing Commander Deluxe CD-ROM to install the game. But the the maintainer wanted a full featured application for MSDOS Append. The pull request was converted to a draft and I could not solve all the issues in the time frame between the draft pull request was made and to where it became obvious there needed to be more research done to understand the codebase.
+
+[Submitted 6/29/2026]
+# Pull Request Description
+
+### Description
+This PR implements the MS-DOS `APPEND` command natively within DOSBox-Staging. 
+
+**What is APPEND?**
+In MS-DOS, `APPEND` allows programs to open data files in specified directories as if they were located in the current working directory. It is heavily utilized by legacy 1980s and 90s installers, compilers, and complex games that expect their assets to be resolvable from anywhere. 
+
+**How it Works (The User Experience)**
+A user (or game installer) types `APPEND C:\DOS;D:\ASSETS /X:ON`. From that moment forward, if any running program asks the DOS kernel to open a file—for example, `SOUND.DAT`—and it doesn't exist in the current directory, the kernel will seamlessly and invisibly check `C:\DOS` and then `D:\ASSETS`. If the file is found, it is opened and handed back to the game exactly as if it had been in the current folder all along. 
+
+We implemented a robust MS-DOS 6.22 parser that supports the following standard interactions:
+- `APPEND [paths]` : Appends a semicolon-separated list of directories to the search fallback pool. (Completely works for any code that tries to open files, always on if list is updated by game/software)
+- This command was integrated poorly into the codebase because it caught all open files instead of at the interrupt level. The interrupt level code of the emulator had no facilities to inject code to search and open files when requested by software, in particular games. So my solution was to capture all open file requests by the emulator and this had two functions DOS_FindFirst and DOS_OpenFile, which were internal API's for the emulator to open emulator side files. The complexity was that drives could be appended and this I had no idea how many execution context's and global states were available at the time of the pull request causing me to be late with implementation for the CodePath AI301 Open Source course.
+### Unimplemented except during review
+- `APPEND ;` : Instantly clears all appended directories from memory. (THIS WASNT IMPLEMENTED FORGOT TO UPDATE DRAFT- Requirement added by maintainer at pull request/draft)
+- `APPEND /X` or `/X:ON` or `/E` : Extends the fallback magic to executable programs (`.COM`, `.EXE`, `.BAT`). (THIS WASNT IMPLEMENTED FORGOT TO UPDATE DRAFT - Requirement added by maintainer at pull request/draft)
+- `APPEND /X:OFF` : Restricts fallback specifically to data files (default MS-DOS behavior). (THIS WASNT IMPLEMENTED FORGOT TO UPDATE DRAFT - Requirement added by maintainer at pull request/draft)
+- `APPEND /PATH:ON` and `/PATH:OFF` : Parsed natively to prevent command errors from legacy installers, acting as harmless no-ops. (THIS WASNT IMPLEMENTED FORGOT TO UPDATE DRAFT - Requirement added by maintainer at pull request/draft)
+- `ECHO %APPEND%` : Users can natively query the environment block to see their active paths, because the shell synchronizes this variable dynamically whenever the user invokes the command. (THIS WASNT IMPLEMENTED FORGOT TO UPDATE DRAFT - Requirement added by maintainer at pull request/draft)
+
+**Command Line Usage & Examples**
+Here is how users will typically interact with the new tool from the DOSBox-Staging prompt:
+
+*Example 1: Basic Data Fallback*
+```dos
+Z:\> APPEND C:\GAMES\DOOM;D:\MODS
+Z:\> APPEND
+APPEND=C:\GAMES\DOOM;D:\MODS
+```
+*Any data file requested by a program that isn't found locally will now be searched for in `C:\GAMES\DOOM`, and then `D:\MODS`.*
+
+*Example 2: Executable Resolution (/X)*
+```dos
+Z:\> APPEND C:\TOOLS /X:ON
+```
+*If a user types `EDIT` at the prompt and `EDIT.COM` is missing from the current directory, the shell will successfully find and launch it from `C:\TOOLS\EDIT.COM`.*
+
+*Example 3: Clearing the Paths*
+```dos
+Z:\> APPEND ;
+Z:\> APPEND
+No Append
+```
+*The semicolon instantly purges the fallback paths from memory and clears the `%APPEND%` environment variable.*
+
+*Example 4: Internal API & Testing*
+For regression testing, our Google Test suite interacts directly with the `DOS_Append` service layer to verify path translation, edge cases, and state toggles. Here is how the `dos_append_tests.cpp` suite proves the list is set and sanitized correctly:
+```cpp
+TEST_F(DOS_AppendTest, ParseMultiplePathsAndStripTrailingSlash)
+{
+	// Set paths with trailing slashes
+	DOS_Append::SetPaths("C:\\GAMES\\;D:\\DATA;E:\\");
+	
+	EXPECT_TRUE(DOS_Append::IsActive());
+	
+	const auto& paths = DOS_Append::GetPaths();
+	ASSERT_EQ(paths.size(), 3);
+	
+	// The service layer automatically sanitizes trailing slashes 
+	// for safe VFS concatenation
+	EXPECT_EQ(paths[0], "C:\\GAMES");
+	EXPECT_EQ(paths[1], "D:\\DATA");
+	EXPECT_EQ(paths[2], "E:");
+}
+```
+
+### Key Implementation Details:
+
+**Z-Drive Tool Registration**
+Just like `MOUNT` or `SUBST`, `APPEND.EXE` is registered natively as a tool on the virtual `Z:` drive (`src/dos/programs/append.cpp`). When executed by the user or an `AUTOEXEC.BAT` file, it securely proxies its arguments to the internal DOS shell (`DOS_Shell::CMD_APPEND`), making it globally accessible from any prompt.
+
+**The Virtual File System (VFS) "Safety Net"**
+Instead of rewriting how the emulator translates core file paths, we simply placed a "safety net" at the points where the emulator fails to find a file. If the game looks for `LEVEL1.DAT` and it's missing, our new `DOS_Append::Resolve` tool kicks in and retries the search across the appended folders. 
+- **Zero Performance Hit**: If a game finds its file normally, our code never runs. It only steps in when a file is genuinely missing.
+- **Natural Search Memory**: Older DOS games rely on complex "search memory" when looking for lots of files (like reading all `*.TXT` files one by one). Our safety net automatically updates this memory with the correct appended folder, so the game never gets confused about where it's looking.
+- **Free Compatibility for Ancient Games**: Because we put our safety net at the absolute lowest level of the file system, games from the 1980s that use legacy "File Control Blocks" (FCB) get full `APPEND` support automatically.
+
+**Clean Service Layer & Sandbox Safety**
+All state is managed by the `DOS_Append` service layer.
+- Paths are parsed using the codebase's native `split_with_empties`.
+- Appended files are resolved using the native `DOS_MakeName` boundary checks, preventing `../` sandbox escapes.
+- State is cleared cleanly when DOS destroys to prevent cross-session leakage.
+
+**Authentic `/X` Executable Isolation**
+In real MS-DOS 6.22, `APPEND` only affects executable lookups if the `/X` (or `/X:ON`) switch is provided. We mimic this natively by gating the `APPEND` paths inside the shell's executable lookup routine behind our new execution flag. Data files and executables are cleanly separated, exactly as Microsoft designed it.
+
+**Environment Sync (`%APPEND%`)**
+We implemented the `APPEND` parser to handle the standard switches (`/X`, `/E`, `/PATH`, `;`). Crucially, whenever the paths change, the shell natively syncs them to the `%APPEND%` environment variable. This means legacy DOS software that explicitly checks the environment block to see if `APPEND` is running will successfully detect our service.
+
+**Regression Tested**
+Includes a comprehensive suite of `gtest` unit tests covering empty-path fast failures, trailing backslash stripping, absolute vs relative paths, and `/X` toggle state.
+
+ ---  
+
+## Related issues
+
+Partially fixes #4866 
+
+# Release notes
+
+Added support for the APPEND command to set or display search paths for data files.
+
+# Manual testing
+
+
+The change has been manually tested on:
+
+- [X] Windows
+- [ ] macOS
+- [X] Linux
+
+
+# Checklist
+
+_Please tick the items as you have addressed them. Don't remove items; leave the ones that are not applicable unchecked._
+
+- [X] I am a human, I have read and understood the [project's policy on the use of generative AI tools](https://github.com/dosbox-staging/dosbox-staging/blob/master/docs/CONTRIBUTING.md#policy-on-the-use-of-generative-ai-tools), and I have acted in accordance to it.
+
+I have:
+
+- [X] followed the project's [contributing guidelines](https://github.com/dosbox-staging/dosbox-staging/blob/master/docs/CONTRIBUTING.md) and [code of conduct](https://github.com/dosbox-staging/dosbox-staging/blob/master/docs/CODE_OF_CONDUCT.md).
+- [X] performed a self-review of my work (especially important for AI-assisted contributions).
+- [X] commented on the particularly hard-to-understand areas of my code.
+- [X] split my work into well-defined, bisectable commits, and I [named my commits well](https://github.com/dosbox-staging/dosbox-staging/blob/main/docs/CONTRIBUTING.md#commit-messages).
+- [ ] applied the appropriate labels (bug, enhancement, refactoring, documentation, etc.)
+- [ ] [checked](https://github.com/dosbox-staging/dosbox-staging/blob/main/scripts/tools/compile-commits.sh) that all my commits can be built.
+- [ ] my change has been manually tested on Windows, macOS, and Linux.
+- [ ] confirmed that my code does not cause performance regressions (e.g., by running the Quake benchmark).
+- [ ] added unit tests where applicable to prove the correctness of my code and to avoid future regressions.
+- [ ] provided the release notes draft (for significant user-facing changes).
+- [ ] made corresponding changes to the documentation or the website according to the [documentation guidelines](https://github.com/dosbox-staging/dosbox-staging/blob/main/docs/DOCUMENTATION.md).
+- [ ] [locally verified](https://github.com/dosbox-staging/dosbox-staging/blob/main/docs/DOCUMENTATION.md#previewing-documentation-changes-locally) my website or documentation changes.
+
+
