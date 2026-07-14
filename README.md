@@ -84,5 +84,5 @@ A comprehensive technical analysis has been completed, covering:
 ## References
 
 - **Original Issue:** [dosbox-staging#4866](https://github.com/dosbox-staging/dosbox-staging/issues/4866)
-- **Research Branch:** `iteration-2-phase-1` (contains detailed technical analysis and implementation details)
+- **Research Branch:** `iteration-1-denied-pr` (contains detailed technical analysis and implementation details)
 - **Upstream Fork:** [uturuncuayaku/dosbox-staging](https://github.com/uturuncuayaku/dosbox-staging)
