@@ -74,16 +74,26 @@
 
 4. **Attempt to use APPEND command**
    ```
-   APPEND C:\TESTAPP\DATA
+   C:\>APPEND C:\TESTAPP\DATA
    ```
    **Result:** Command not recognized error (APPEND is not implemented)
 
 5. **Attempt to access file across directories**
    ```
-   cd C:\TESTAPP\RUNFROM
-   type NEEDLE.TXT
+   C:\>cd C:\TESTAPP\RUNFROM
+   C:\TESTAPP\RUNFROM\>type NEEDLE.TXT
    ```
-   **Result:** File not found error (file exists in `DATA\` but is not accessible from `RUNFROM\`)
+   **Result:** File not found error (file exists in DATA\ but is not accessible from RUNFROM\)
+
+6. **Expected behavior with basic APPEND functionality** (after implementation)
+   ```
+   C:\TESTAPP\RUNFROM\>APPEND C:\TESTAPP\DATA
+   C:\TESTAPP\RUNFROM\>APPEND
+   APPEND=C:\TESTAPP\DATA
+   C:\TESTAPP\RUNFROM\>type NEEDLE.TXT
+   This is test data
+   ```
+   **Expected:** File lookup succeeds transparently in appended directory
 
 ---
 
