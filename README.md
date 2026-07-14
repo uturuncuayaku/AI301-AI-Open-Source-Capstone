@@ -60,40 +60,31 @@
 
 2. **Create test directory structure**
    ```
-   Z:\>mkdir C:\TESTAPP
-   Z:\>mkdir C:\TESTAPP\DATA
-   Z:\>mkdir C:\TESTAPP\RUNFROM
-   Z:\>echo This is test data > C:\TESTAPP\DATA\NEEDLE.TXT
+   Z:\>mkdir TESTAPP
+   Z:\>mkdir TESTAPP\DATA
+   Z:\>mkdir TESTAPP\RUNFROM
+   Z:\>echo This is test data > TESTAPP\DATA\NEEDLE.TXT
    ```
 
-3. **Launch DOSBox-Staging and mount test directory**
+3. **Attempt to use APPEND command (currently fails)**
    ```
-   mount C <path-to-testapp>
-   C:
+   Z:\>APPEND Z:\TESTAPP\DATA
+   Bad command or file name
    ```
 
-4. **Attempt to use APPEND command**
+4. **Attempt to access file from different directory (fails)**
    ```
-   C:\>APPEND C:\TESTAPP\DATA
+   Z:\>cd TESTAPP\RUNFROM
+   Z:\TESTAPP\RUNFROM\>type NEEDLE.TXT
+   File not found
    ```
-   **Result:** Command not recognized error (APPEND is not implemented)
 
-5. **Attempt to access file across directories**
+5. **Expected behavior with basic APPEND functionality** (after implementation)
    ```
-   C:\>cd C:\TESTAPP\RUNFROM
-   C:\TESTAPP\RUNFROM\>type NEEDLE.TXT
-   ```
-   **Result:** File not found error (file exists in DATA\ but is not accessible from RUNFROM\)
-
-6. **Expected behavior with basic APPEND functionality** (after implementation)
-   ```
-   C:\TESTAPP\RUNFROM\>APPEND C:\TESTAPP\DATA
-   C:\TESTAPP\RUNFROM\>APPEND
-   APPEND=C:\TESTAPP\DATA
-   C:\TESTAPP\RUNFROM\>type NEEDLE.TXT
+   Z:\TESTAPP\RUNFROM\>APPEND Z:\TESTAPP\DATA
+   Z:\TESTAPP\RUNFROM\>type NEEDLE.TXT
    This is test data
    ```
-   **Expected:** File lookup succeeds transparently in appended directory
 
 ---
 
