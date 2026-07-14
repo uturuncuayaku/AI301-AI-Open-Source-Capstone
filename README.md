@@ -59,10 +59,12 @@
       ```
 
 2. **Create test directory structure**
-   - Create `C:\TESTAPP\` directory
-   - Create `C:\TESTAPP\DATA\` subdirectory
-   - Create `C:\TESTAPP\RUNFROM\` subdirectory
-   - Place test file `NEEDLE.TXT` in `C:\TESTAPP\DATA\`
+   ```
+   Z:\>mkdir C:\TESTAPP
+   Z:\>mkdir C:\TESTAPP\DATA
+   Z:\>mkdir C:\TESTAPP\RUNFROM
+   Z:\>echo This is test data > C:\TESTAPP\DATA\NEEDLE.TXT
+   ```
 
 3. **Launch DOSBox-Staging and mount test directory**
    ```
