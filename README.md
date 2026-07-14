@@ -48,11 +48,6 @@
    ```
    **Result:** File not found error (file exists in `DATA\` but is not accessible from `RUNFROM\`)
 
-6. **Verify expected behavior with placeholder**
-   - Create a dummy `APPEND.EXE` file
-   - APPEND command is now "recognized" but provides no functionality
-   - File lookup still fails because dummy APPEND has no effect
-
 ---
 
 ## Reproduction Evidence
