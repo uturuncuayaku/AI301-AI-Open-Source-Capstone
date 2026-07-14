@@ -17,11 +17,46 @@
 ### Reproduction Process
 
 1. **Set up DOSBox-Staging build environment**
-   - Follow the [Windows Development Setup Guide](https://github.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/blob/iteration-2-phase2/../../Documents/WINDOWS_DEV_SETUP.md)
-   - Quick start: Clone DOSBox-Staging repository
-   - Install build dependencies (Visual Studio 2022, CMake 3.25+, Python 3.12+)
-   - Build with: `cmake --preset debug-windows && cmake --build --preset debug-windows`
-   - Verify: `.\build\debug-windows\dosbox.exe --version`
+
+   **Option A: Use Release Version**
+   - Download from [DOSBox-Staging Releases](https://github.com/dosbox-staging/dosbox-staging/releases)
+   - Extract and run the pre-built executable
+   
+   **Option B: Compile from Source (Windows 11)**
+   
+   a. **Install build dependencies:**
+      ```powershell
+      # Visual Studio 2022 Community
+      winget install --id Microsoft.VisualStudio.2022.Community --exact
+      # During installation, select: "Desktop development with C++"
+      
+      # CMake (3.25+)
+      winget install --id Kitware.CMake --exact
+      
+      # Python (3.12+)
+      winget install --id Python.Python.3.12 --exact
+      # Ensure "Add Python to PATH" is checked during install
+      
+      # Git
+      winget install --id Git.Git --exact
+      ```
+   
+   b. **Clone and configure:**
+      ```powershell
+      git clone https://github.com/dosbox-staging/dosbox-staging.git
+      cd dosbox-staging
+      cmake --preset debug-windows
+      ```
+   
+   c. **Build:**
+      ```powershell
+      cmake --build --preset debug-windows
+      ```
+   
+   d. **Verify:**
+      ```powershell
+      .\build\debug-windows\dosbox.exe --version
+      ```
 
 2. **Create test directory structure**
    - Create `C:\TESTAPP\` directory
