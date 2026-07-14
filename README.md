@@ -26,6 +26,10 @@ Currently, DOSBox-Staging does not implement the `APPEND` command, which limits 
 
 **Goal:** Implement the MS-DOS v4.0 `APPEND` command to enable file lookup across multiple directories.
 
+### Reference Implementation
+
+- **MS-DOS v4.0 APPEND Source:** [microsoft/ms-dos — APPEND.ASM](https://github.com/microsoft/ms-dos/blob/master/v40/dev/append/append.asm)
+
 ### APPEND Command Behavior
 
 ```
