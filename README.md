@@ -26,15 +26,18 @@ Currently, DOSBox-Staging does not implement the `APPEND` command, which limits 
 
 ### Prerequisites
 - DOSBox-Staging compiled and running locally
+- Development environment: Windows 11, Visual Studio 2022, CMake, Python 3
 - A test DOS environment with multiple directories
 - A simple test program that attempts to open a file not in the current directory
 
 ### Reproduction Process
 
 1. **Set up DOSBox-Staging build environment**
-   - Clone DOSBox-Staging repository
-   - Install build dependencies (Meson, Ninja, C++ compiler)
-   - Compile DOSBox-Staging from source
+   - Follow the [Windows Development Setup Guide](https://github.com/uturuncuayaku/AI301-AI-Open-Source-Capstone/blob/iteration-2-phase2/../../Documents/WINDOWS_DEV_SETUP.md)
+   - Quick start: Clone DOSBox-Staging repository
+   - Install build dependencies (Visual Studio 2022, CMake 3.25+, Python 3.12+)
+   - Build with: `cmake --preset debug-windows && cmake --build --preset debug-windows`
+   - Verify: `.\build\debug-windows\dosbox.exe --version`
 
 2. **Create test directory structure**
    - Create `C:\TESTAPP\` directory
@@ -114,10 +117,11 @@ Implement a native APPEND command that intercepts file-open operations and trans
    - Maintain sync between host state and guest-accessible memory
    - Allow direct guest-side modifications via INT 2Fh pointer
 
-### Reference Implementation
+### Reference Implementation & Setup
 
 - **MS-DOS v4.0 APPEND Source:** [microsoft/ms-dos — APPEND.ASM](https://github.com/microsoft/ms-dos/blob/master/v40/dev/append/append.asm)
 - **Integration Guide:** See `iteration-1-denied-pr` branch for detailed technical specifications
+- **Development Setup:** Windows 11 build environment guide in Documents folder
 
 ### Testing Strategy
 
