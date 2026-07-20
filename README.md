@@ -2,9 +2,73 @@
 
 **Student:** Andres  
 **Issue:** https://github.com/dosbox-staging/dosbox-staging/issues/4866  
-**Status:** Phase II - In Progress
+**Status:** Phase III - In Progress
+Currently implementing MS-DOS APPEND as a native feature in DOSBox
+Staging (https://github.com/dosbox-staging/dosbox-staging). Reference for
+original behavior: MS-DOS v4.0 source, src/CMD/APPEND/APPEND.ASM
+(https://github.com/microsoft/MS-DOS).
 
 ---
+## What APPEND Does
+APPEND is "PATH for data files." `APPEND C:\DATA;C:\LIB` makes failed file
+opens transparently retry in those directories. A program in C:\EMPTY doing
+`open("REPORT.TXT")` finds C:\DATA\REPORT.TXT without knowing it.
+
+## Building Solution or Minimal Viable Product
+
+### Challenges
+- Translating the open source APPEND.ASM into C++.
+- Integrating the basic functionality into DOSBox-Staging.
+- Scope creep, because APPEND.ASM has lots of different flags that determine it's functionality. So for now basic implementation is required. No flag's added to the command line command. Just directories and clearing the directory list.
+- Native implementation is required because many game developers expected APPEND quirks such as not enough memory to hold a lot of directories for a game data path or file path resolution problems that were common.
+- Understanding a lot of the architecture within the codebase. Sometimes it's completely true to MS-DOS and other times there are C++ abstractions so not understanding the entire codebase and where APPEND would work is taking a lot longer for me to verify due to the complexity of the architecture. For instance, there are multiple interrupts that must be caught and there is a program that is similar to APPEND so copying and learning from those programs first takes some time due to the complexity of emulating an entire operating system using x8086 CPU registers and RAM. The memory layout is new to me and the way files are opened and searched for is advanced but a fun learning experience.
+
+## Core Architectural Insight
+
+Real DOS APPEND was a TSR: one binary, two personalities.
+- RESIDENT half: hooked INT 21h + INT 2Fh vectors, stayed in guest memory
+  via INT 21h AH=31h (terminate-and-stay-resident), kept a 128-byte
+  directory-list buffer in guest RAM.
+- TRANSIENT half: command-line parser. On second invocation it detected the
+  resident copy (INT 2Fh AX=B700h → AL=FFh) and edited the resident list
+  through a pointer (AX=B704h → ES:DI) instead of re-installing.
+
+DOSBox Staging inverts this: the "resident half" is native C++ compiled into
+the emulator (dos_append.cpp). It is "installed" at DOSBox startup when
+DOS_SetupMisc() calls APPEND_Init() — NOT when the user runs APPEND.COM.
+There is no INT 21h AH=31h, no guest-side resident code, no vector saving.
+State lives in C++ objects (std::string append_dir_list, uint16_t mode_flags).
+
+The transient half is Z:\APPEND.COM (program_append.cpp), registered via
+PROGRAMS_MakeFile("APPEND.COM", ProgramCreate<APPEND_PROGRAM>). Each run is a
+fresh instance; it calls APPEND_SetDirList()/APPEND_GetDirList() directly and
+exits. Last writer wins.
+
+## Command Categories in DOSBox (context for where APPEND fits)
+1. Shell built-ins (DIR, TYPE, CD): hardcoded in the shell, no binary.
+2. Installed programs (CHKDSK, Z:\APPEND.COM): transient, run and exit.
+3. Resident utilities (MSCDEX, SHARE, APPEND): persistent interrupt-servicing
+   logic. In DOSBox these are native C++ registered once at startup.
+APPEND is a HYBRID: resident C++ half + transient program half.
+
+## Z:\APPEND.COM Grammar (this build)
+  APPEND [d:]path[;[d:]path...]   set list (tolerates leading '=', AN008)
+  APPEND ;                        clear list
+  APPEND                          display "APPEND=..." or "No Append"
+
+## Verification Methodology (for defending the design)
+1. Code trace: follow TYPE MISSING.TXT through DOS_21Handler → DOS_OpenFile →
+   failure exit → APPEND_ResolveName → recursive retry.
+2. Reference comparison: APPEND.ASM hooks exactly two vectors (21h, 2Fh);
+   they map to the C++ failure hook and the multiplex handler.
+3. Instrumentation: counters on multiplex_calls vs resolve_calls prove the
+   multiplex path is rare and resolution is failure-driven only.
+4. Guest-side probes: DEBUG → AX=B700 INT 2F → AL=FF; B706 → BX=mode word.
+5. Regression guard: file nowhere + APPEND active must still yield error 2
+   with CF set.
+6. Write-through test: real MS-DOS APPEND.EXE inside the emulator detects
+   "already installed" via B700h and edits through B704h; internal APPEND
+   must then display the edit (exercises sync_list_from_guest_memory).
 
 ## Steps to Reproduce
 
