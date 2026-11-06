@@ -10,10 +10,6 @@ original behavior: MS-DOS v4.0 source, src/CMD/APPEND/APPEND.ASM
 
 ---
 
-## Current progress report     
-7/26/2026   
-Still working on creating the pull request and have been working extensively with AI-assistance and have become comfortable with the codebase and now with most of the APPEND implementation. But I still need to verify the functional requirements align correctly to the APPEND open source assembly from MSDOS v4.0. Created technical report after phase one block within this document to document my implementation. 
-
 ## Phase I
 
 ## Why I Chose This Issue
